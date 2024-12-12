@@ -7,33 +7,34 @@ import 'package:jverify/jverify.dart';
 
 import 'load.dart';
 
-void main() => runApp(new MaterialApp(
-      title: "demo",
-      theme: new ThemeData(primaryColor: Colors.white),
-      home: MyApp(),
-    ));
+void main() => runApp( MaterialApp(
+  title: "demo",
+  theme:  ThemeData(primaryColor: Colors.white),
+  home: const MyApp(),
+));
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   /// 统一 key
-  final String f_result_key = "result";
+  final String fResultKey = "result";
 
   /// 错误码
-  final String f_code_key = "code";
+  final String fCodeKey = "code";
 
   /// 回调的提示信息，统一返回 flutter 为 message
-  final String f_msg_key = "message";
+  final String fMsgKey = "message";
 
   /// 运营商信息
-  final String f_opr_key = "operator";
+  final String fOprKey = "operator";
 
   String _result = "token=";
-  var controllerPHone = new TextEditingController();
-  final Jverify jverify = new Jverify();
+  var controllerPHone =  TextEditingController();
+  final Jverify jverify =  Jverify();
   String? _token;
 
   @override
@@ -57,27 +58,28 @@ class _MyAppState extends State<MyApp> {
   Widget _buildContent() {
     return Center(
       widthFactor: 2,
-      child: new Column(
+      child:  Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Container(
-            margin: EdgeInsets.all(20),
+            margin: const EdgeInsets.all(20),
             color: Colors.brown,
-            child: Text(_result),
             width: 300,
             height: 100,
+            child: Text(_result),
           ),
-          new Container(
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
-            child: new Row(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
+            child:  Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new CustomButton(
+                 CustomButton(
                     onPressed: () {
                       isInitSuccess();
                     },
                     title: "初始化状态"),
-                new Text("   "),
-                new CustomButton(
+                 const Text("   "),
+                 CustomButton(
                   onPressed: () {
                     checkVerifyEnable();
                   },
@@ -86,78 +88,77 @@ class _MyAppState extends State<MyApp> {
               ],
             ),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: SizedBox(
-              child: new CustomButton(
+              width: double.infinity,
+              child:  CustomButton(
                 onPressed: () {
                   getToken();
                 },
                 title: "获取号码认证 Token",
               ),
-              width: double.infinity,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: TextField(
               autofocus: false,
-              style: TextStyle(color: Colors.black),
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.black),
+              decoration: const InputDecoration(
                   hintText: "手机号码", hintStyle: TextStyle(color: Colors.black)),
               controller: controllerPHone,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: SizedBox(
-              child: new CustomButton(
+              width: double.infinity,
+              child:  CustomButton(
                 onPressed: () {
                   preLogin();
                 },
                 title: "预取号",
               ),
-              width: double.infinity,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: SizedBox(
-              child: new CustomButton(
+              width: double.infinity,
+              child:  CustomButton(
                 onPressed: () {
                   loginAuth(false);
                 },
                 title: "一键登录",
               ),
-              width: double.infinity,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: SizedBox(
-              child: new CustomButton(
+              width: double.infinity,
+              child:  CustomButton(
                 onPressed: () {
                   loginAuth(true);
                 },
                 title: "短信登录",
               ),
-              width: double.infinity,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
-          new Container(
+           Container(
+            margin: const EdgeInsets.fromLTRB(40, 5, 40, 5),
             child: SizedBox(
-              child: new CustomButton(
+              width: double.infinity,
+              child:  CustomButton(
                 onPressed: () {
                   getSMSCode();
                 },
                 title: "获取验证码",
               ),
-              width: double.infinity,
             ),
-            margin: EdgeInsets.fromLTRB(40, 5, 40, 5),
           ),
         ],
-        mainAxisAlignment: MainAxisAlignment.start,
       ),
     );
   }
@@ -165,12 +166,12 @@ class _MyAppState extends State<MyApp> {
   /// sdk 初始化是否完成
   void isInitSuccess() {
     jverify.isInitSuccess().then((map) {
-      bool result = map[f_result_key];
+      bool result = map[ fResultKey];
       setState(() {
         if (result) {
-          _result = "sdk 初始换成功";
+          _result = "sdk 初始化成功";
         } else {
-          _result = "sdk 初始换失败";
+          _result = "sdk 初始化失败";
         }
       });
     });
@@ -179,7 +180,7 @@ class _MyAppState extends State<MyApp> {
   /// 判断当前网络环境是否可以发起认证
   void checkVerifyEnable() {
     jverify.checkVerifyEnable().then((map) {
-      bool result = map[f_result_key];
+      bool result = map[ fResultKey];
       setState(() {
         if (result) {
           _result = "当前网络环境【支持认证】！";
@@ -196,12 +197,12 @@ class _MyAppState extends State<MyApp> {
       _showLoading(context);
     });
     jverify.checkVerifyEnable().then((map) {
-      bool result = map[f_result_key];
+      bool result = map[ fResultKey];
       if (result) {
         jverify.getToken().then((map) {
-          int code = map[f_code_key];
-          _token = map[f_msg_key];
-          String operator = map[f_opr_key];
+          int code = map[fCodeKey];
+          _token = map[fMsgKey];
+          String operator = map[fOprKey];
           setState(() {
             _hideLoading();
             _result = "[$code] message = $_token, operator = $operator";
@@ -230,12 +231,12 @@ class _MyAppState extends State<MyApp> {
       return;
     }
     jverify.checkVerifyEnable().then((map) {
-      bool result = map[f_result_key];
+      bool result = map[ fResultKey];
       if (result) {
         jverify.getSMSCode(phoneNum: phoneNum).then((map) {
-          print("获取短信验证码：${map.toString()}");
-          int code = map[f_code_key];
-          String message = map[f_msg_key];
+          debugPrint("获取短信验证码：${map.toString()}");
+          int code = map[fCodeKey];
+          String message = map[fMsgKey];
           setState(() {
             _hideLoading();
             _result = "[$code] message = $message";
@@ -256,12 +257,12 @@ class _MyAppState extends State<MyApp> {
       _showLoading(context);
     });
     jverify.checkVerifyEnable().then((map) {
-      bool result = map[f_result_key];
+      bool result = map[ fResultKey];
       if (result) {
         jverify.preLogin().then((map) {
-          print("预取号接口回调：${map.toString()}");
-          int code = map[f_code_key];
-          String message = map[f_msg_key];
+          debugPrint("预取号接口回调：${map.toString()}");
+          int code = map[fCodeKey];
+          String message = map[fMsgKey];
           setState(() {
             _hideLoading();
             _result = "[$code] message = $message";
@@ -290,12 +291,13 @@ class _MyAppState extends State<MyApp> {
       _showLoading(context);
     });
     jverify.checkVerifyEnable().then((map) {
-      bool result = map[f_result_key];
-      print("checkVerifyEnable $map");
+      bool result = map[ fResultKey];
+      debugPrint("checkVerifyEnable $map");
       //需要使用sms的时候不检查result
       // if (result) {
       if (true) {
-        final screenSize = MediaQuery.of(context).size;
+
+        final screenSize = PlatformDispatcher.instance.views.single.physicalSize;
         final screenWidth = screenSize.width;
         final screenHeight = screenSize.height;
         bool isiOS = Platform.isIOS;
@@ -308,7 +310,7 @@ class _MyAppState extends State<MyApp> {
         // uiConfig.authBGGifPath = "main_gif";
         // uiConfig.authBGVideoPath="main_vi";
         uiConfig.authBGVideoPath =
-            "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
+        "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
         uiConfig.authBGVideoImgPath = "main_v_bg";
 
         uiConfig.navHidden = !isiOS;
@@ -321,7 +323,7 @@ class _MyAppState extends State<MyApp> {
         uiConfig.logoHeight = 80;
         //uiConfig.logoOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logoWidth/2).toInt();
         uiConfig.logoOffsetY = 10;
-        uiConfig.logoVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
+        uiConfig.logoVerticalLayoutItem =  JVIOSLayoutItem.itemSuper;
         uiConfig.logoHidden = false;
         uiConfig.logoImgPath = "logo";
 
@@ -329,12 +331,12 @@ class _MyAppState extends State<MyApp> {
         uiConfig.numberFieldHeight = 40;
         //uiConfig.numFieldOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.numberFieldWidth/2).toInt();
         uiConfig.numFieldOffsetY = isiOS ? 20 : 120;
-        uiConfig.numberVerticalLayoutItem = JVIOSLayoutItem.ItemLogo;
+        uiConfig.numberVerticalLayoutItem =  JVIOSLayoutItem.itemLogo;
         uiConfig.numberColor = Colors.blue.value;
         uiConfig.numberSize = 18;
 
         uiConfig.sloganOffsetY = isiOS ? 20 : 160;
-        uiConfig.sloganVerticalLayoutItem = JVIOSLayoutItem.ItemNumber;
+        uiConfig.sloganVerticalLayoutItem =  JVIOSLayoutItem.itemNumber;
         uiConfig.sloganTextColor = Colors.black.value;
         uiConfig.sloganTextSize = 15;
 //        uiConfig.slogan
@@ -344,7 +346,7 @@ class _MyAppState extends State<MyApp> {
         uiConfig.logBtnHeight = 50;
         //uiConfig.logBtnOffsetX = isiOS ? 0 : null;//(screenWidth/2 - uiConfig.logBtnWidth/2).toInt();
         uiConfig.logBtnOffsetY = isiOS ? 20 : 230;
-        uiConfig.logBtnVerticalLayoutItem = JVIOSLayoutItem.ItemSlogan;
+        uiConfig.logBtnVerticalLayoutItem =  JVIOSLayoutItem.itemSlogan;
         uiConfig.logBtnText = "登录按钮";
         uiConfig.logBtnTextColor = Colors.brown.value;
         uiConfig.logBtnTextSize = 16;
@@ -354,7 +356,7 @@ class _MyAppState extends State<MyApp> {
         uiConfig.loginBtnUnableImage = "login_btn_unable"; //图片必须存在
 
         uiConfig.privacyHintToast =
-            true; //only android 设置隐私条款不选中时点击登录按钮默认显示toast。
+        true; //only android 设置隐私条款不选中时点击登录按钮默认显示toast。
 
         uiConfig.privacyState = false; //设置默认勾选
         uiConfig.privacyCheckboxSize = 20;
@@ -366,7 +368,7 @@ class _MyAppState extends State<MyApp> {
 
         //uiConfig.privacyOffsetX = isiOS ? (20 + uiConfig.privacyCheckboxSize) : null;
         uiConfig.privacyOffsetY = 15; // 距离底部距离
-        uiConfig.privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
+        uiConfig.privacyVerticalLayoutItem =  JVIOSLayoutItem.itemSuper;
         uiConfig.clauseName = "协议1";
         uiConfig.clauseUrl = "http://www.baidu.com";
         uiConfig.clauseBaseColor =
@@ -387,10 +389,10 @@ class _MyAppState extends State<MyApp> {
         uiConfig.textVerAlignment = 1;
         //uiConfig.privacyWithBookTitleMark = true;
         //uiConfig.privacyTextCenterGravity = false;
-        uiConfig.authStatusBarStyle = JVIOSBarStyle.StatusBarStyleDarkContent;
-        uiConfig.privacyStatusBarStyle = JVIOSBarStyle.StatusBarStyleDefault;
+        uiConfig.authStatusBarStyle = JVIOSBarStyle.statusBarStyleDarkContent;
+        uiConfig.privacyStatusBarStyle = JVIOSBarStyle.statusBarStyleDefault;
         uiConfig.modelTransitionStyle =
-            JVIOSUIModalTransitionStyle.CrossDissolve;
+            JVIOSUIModalTransitionStyle.crossDissolve;
 
         uiConfig.statusBarColorWithNav = true;
         // uiConfig.virtualButtonTransparent = true;
@@ -417,7 +419,7 @@ class _MyAppState extends State<MyApp> {
             const Color.fromARGB(255, 28, 27, 32).value;
         uiConfig.agreementAlertViewTitleTextColor = Colors.white.value;
         uiConfig.agreementAlertViewTitleText =
-            "Please Read And Agree to The Following Terms";
+        "Please Read And Agree to The Following Terms";
         uiConfig.agreementAlertViewTitleTexSize = 16;
         uiConfig.agreementAlertViewContentTextAlignment =
             JVTextAlignmentType.center;
@@ -426,11 +428,11 @@ class _MyAppState extends State<MyApp> {
         // uiConfig.agreementAlertViewLoginBtnPressedImagePath = "login_btn_press";
         // uiConfig.agreementAlertViewLoginBtnUnableImagePath = "login_btn_unable";
         uiConfig.agreementAlertViewLoginBtnNormalImagePath =
-            "login_btn_normal_dark";
+        "login_btn_normal_dark";
         uiConfig.agreementAlertViewLoginBtnPressedImagePath =
-            "login_btn_normal_dark";
+        "login_btn_normal_dark";
         uiConfig.agreementAlertViewLoginBtnUnableImagePath =
-            "login_btn_normal_dark";
+        "login_btn_normal_dark";
         uiConfig.agreementAlertViewLogBtnText = "同意";
         uiConfig.agreementAlertViewLogBtnTextFontSize = 13;
         uiConfig.agreementAlertViewLogBtnTextColor =
@@ -438,7 +440,7 @@ class _MyAppState extends State<MyApp> {
 
         //协议二次弹窗内容设置 -Android
         JVPrivacyCheckDialogConfig privacyCheckDialogConfig =
-            JVPrivacyCheckDialogConfig();
+        JVPrivacyCheckDialogConfig();
         // privacyCheckDialogConfig.width = 250;
         // privacyCheckDialogConfig.height = 100;
         privacyCheckDialogConfig.title = "测试协议标题";
@@ -460,10 +462,10 @@ class _MyAppState extends State<MyApp> {
 
         /// 添加自定义的 控件 到dialog
         List<JVCustomWidget> dialogWidgetList = [];
-        final String btn_dialog_widgetId =
+        const String btnDialogWidgetId =
             "jv_add_custom_dialog_button"; // 标识控件 id
         JVCustomWidget buttonDialogWidget =
-            JVCustomWidget(btn_dialog_widgetId, JVCustomWidgetType.button);
+        JVCustomWidget(btnDialogWidgetId, JVCustomWidgetType.button);
         buttonDialogWidget.title = "取消";
         buttonDialogWidget.titleColor = Colors.white.value;
         buttonDialogWidget.left = 0;
@@ -477,10 +479,10 @@ class _MyAppState extends State<MyApp> {
         //buttonWidget.textAlignment = JVTextAlignmentType.left;
 
         // 添加点击事件监听
-        jverify.addClikWidgetEventListener(btn_dialog_widgetId, (eventId) {
-          print("receive listener - click dialog widget event :$eventId");
-          if (btn_dialog_widgetId == eventId) {
-            print("receive listener - 点击【新加 dialog button】");
+        jverify.addClikWidgetEventListener(btnDialogWidgetId, (eventId) {
+          debugPrint("receive listener - click dialog widget event :$eventId");
+          if (btnDialogWidgetId == eventId) {
+            debugPrint("receive listener - 点击【新加 dialog button】");
           }
         });
         dialogWidgetList.add(buttonDialogWidget);
@@ -508,9 +510,9 @@ class _MyAppState extends State<MyApp> {
         /// 添加自定义的 控件 到授权界面
         List<JVCustomWidget> widgetList = [];
 
-        final String text_widgetId = "jv_add_custom_text"; // 标识控件 id
+        const String textWidgetId = "jv_add_custom_text"; // 标识控件 id
         JVCustomWidget textWidget =
-            JVCustomWidget(text_widgetId, JVCustomWidgetType.textView);
+        JVCustomWidget(textWidgetId, JVCustomWidgetType.textView);
         textWidget.title = "新加 text view 控件";
         textWidget.left = 20;
         textWidget.top = 360;
@@ -522,17 +524,17 @@ class _MyAppState extends State<MyApp> {
         textWidget.isClickEnable = true;
 
         // 添加点击事件监听
-        jverify.addClikWidgetEventListener(text_widgetId, (eventId) {
-          print("receive listener - click widget event :$eventId");
-          if (text_widgetId == eventId) {
-            print("receive listener - 点击【新加 text】");
+        jverify.addClikWidgetEventListener(textWidgetId, (eventId) {
+          debugPrint("receive listener - click widget event :$eventId");
+          if (textWidgetId == eventId) {
+            debugPrint("receive listener - 点击【新加 text】");
           }
         });
         widgetList.add(textWidget);
 
-        final String btn_widgetId = "jv_add_custom_button"; // 标识控件 id
+        const String btnWidgetId = "jv_add_custom_button"; // 标识控件 id
         JVCustomWidget buttonWidget =
-            JVCustomWidget(btn_widgetId, JVCustomWidgetType.button);
+        JVCustomWidget(btnWidgetId, JVCustomWidgetType.button);
         buttonWidget.title = "新加 button 控件";
         buttonWidget.left = 100;
         buttonWidget.top = 400;
@@ -545,10 +547,10 @@ class _MyAppState extends State<MyApp> {
         //buttonWidget.textAlignment = JVTextAlignmentType.left;
 
         // 添加点击事件监听
-        jverify.addClikWidgetEventListener(btn_widgetId, (eventId) {
-          print("receive listener - click widget event :$eventId");
-          if (btn_widgetId == eventId) {
-            print("receive listener - 点击【新加 button】");
+        jverify.addClikWidgetEventListener(btnWidgetId, (eventId) {
+          debugPrint("receive listener - click widget event :$eventId");
+          if (btnWidgetId == eventId) {
+            debugPrint("receive listener - 点击【新加 button】");
           }
         });
         widgetList.add(buttonWidget);
@@ -576,12 +578,12 @@ class _MyAppState extends State<MyApp> {
           jverify.loginAuthSyncApi2(
               autoDismiss: true,
               enableSms: true,
-              loginAuthcallback: (event) {
+              loginAuthCallback: (event) {
                 setState(() {
                   _hideLoading();
                   _result = "获取返回数据：[${event.code}] message = ${event.message}";
                 });
-                print(
+                debugPrint(
                     "获取到 loginAuthSyncApi 接口返回数据，code=${event.code},message = ${event.message},operator = ${event.operator}");
               });
         } else {
@@ -593,44 +595,45 @@ class _MyAppState extends State<MyApp> {
                   _hideLoading();
                   _result = "获取返回数据：[${event.code}] message = ${event.message}";
                 });
-                print(
+                debugPrint(
                     "获取到 smsAuth 接口返回数据，code=${event.code},message = ${event.message},phone = ${event.phone}");
               });
         }
-      } else {
-        setState(() {
-          _hideLoading();
-          _result = "[2016],msg = 当前网络环境不支持认证";
-        });
-
-        /* 弹框模式
-        JVPopViewConfig popViewConfig = JVPopViewConfig();
-        popViewConfig.width = (screenWidth - 100.0).toInt();
-        popViewConfig.height = (screenHeight - 150.0).toInt();
-
-        uiConfig.popViewConfig = popViewConfig;
-        */
-
-        /*
-
-        /// 方式二：使用异步接口 （如果想使用异步接口，则忽略此步骤，看方式二）
-
-        /// 先，执行异步的一键登录接口
-        jverify.loginAuth(true).then((map) {
-
-          /// 再，在回调里获取 loginAuth 接口异步返回数据（如果是通过添加 JVLoginAuthCallBackListener 监听来获取返回数据，则忽略此步骤）
-          int code = map[f_code_key];
-          String content = map[f_msg_key];
-          String operator = map[f_opr_key];
-          setState(() {
-           _hideLoading();
-            _result = "接口异步返回数据：[$code] message = $content";
-          });
-          print("通过接口异步返回，获取到 loginAuth 接口返回数据，code=$code,message = $content,operator = $operator");
-        });
-
-        */
       }
+      // else {
+      //   setState(() {
+      //     _hideLoading();
+      //     _result = "[2016],msg = 当前网络环境不支持认证";
+      //   });
+      //
+      //   /* 弹框模式
+      //   JVPopViewConfig popViewConfig = JVPopViewConfig();
+      //   popViewConfig.width = (screenWidth - 100.0).toInt();
+      //   popViewConfig.height = (screenHeight - 150.0).toInt();
+      //
+      //   uiConfig.popViewConfig = popViewConfig;
+      //   */
+      //
+      //   /*
+      //
+      //   /// 方式二：使用异步接口 （如果想使用异步接口，则忽略此步骤，看方式二）
+      //
+      //   /// 先，执行异步的一键登录接口
+      //   jverify.loginAuth(true).then((map) {
+      //
+      //     /// 再，在回调里获取 loginAuth 接口异步返回数据（如果是通过添加 JVLoginAuthCallBackListener 监听来获取返回数据，则忽略此步骤）
+      //     int code = map[fCodeKey];
+      //     String content = map[fMsgKey];
+      //     String operator = map[fOprKey];
+      //     setState(() {
+      //      _hideLoading();
+      //       _result = "接口异步返回数据：[$code] message = $content";
+      //     });
+      //     debugPrint("通过接口异步返回，获取到 loginAuth 接口返回数据，code=$code,message = $content,operator = $operator");
+      //   });
+      //
+      //   */
+      // }
     });
   }
 
@@ -638,14 +641,14 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     // 初始化 SDK 之前添加监听
     jverify.addSDKSetupCallBackListener((JVSDKSetupEvent event) {
-      print("receive sdk setup call back event :${event.toMap()}");
+      debugPrint("接收 SDK 设置回调事件 :${event.toMap()}");
     });
 
     jverify.setDebugMode(true); // 打开调试模式
     jverify.setCollectionAuth(true);
     jverify.setup(
         appKey: "4fcc3e237eec4c4fb804ad49", //"你自己应用的 AppKey",
-        channel: "devloper-default"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
+        channel: "default_developer"); // 初始化sdk,  appKey 和 channel 只对ios设置有效
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -653,35 +656,35 @@ class _MyAppState extends State<MyApp> {
 
     /// 授权页面点击时间监听
     jverify.addAuthPageEventListener((JVAuthPageEvent event) {
-      print("receive auth page event :${event.toMap()}");
+      debugPrint("接收身份验证页面事件 :${event.toMap()}");
     });
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(StringProperty('f_result_key', f_result_key));
+    properties.add(StringProperty(' fResultKey',  fResultKey));
   }
 }
 
 /// 封装 按钮
 class CustomButton extends StatelessWidget {
-  final VoidCallback? onPressed;
+  final VoidCallback onPressed;
   final String? title;
 
-  const CustomButton({@required this.onPressed, this.title});
+  const CustomButton({super.key, required this.onPressed, this.title});
 
   @override
   Widget build(BuildContext context) {
-    return new TextButton(
+    return  TextButton(
       onPressed: onPressed,
-      child: new Text("$title"),
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(Colors.white),
-        overlayColor: MaterialStateProperty.all(Color(0xff888888)),
-        backgroundColor: MaterialStateProperty.all(Color(0xff585858)),
-        padding: MaterialStateProperty.all(EdgeInsets.fromLTRB(10, 5, 10, 5)),
+        foregroundColor: WidgetStateProperty.all(Colors.white),
+        overlayColor: WidgetStateProperty.all(const Color(0xff888888)),
+        backgroundColor: WidgetStateProperty.all(const Color(0xff585858)),
+        padding: WidgetStateProperty.all(const EdgeInsets.fromLTRB(10, 5, 10, 5)),
       ),
+      child:  Text("$title"),
     );
   }
 }

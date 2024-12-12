@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,7 +9,7 @@ typedef JVClickWidgetEventListener = void Function(String widgetId);
 
 /// 授权页事件回调 @since 2.4.0
 typedef JVAuthPageEventListener = void Function(JVAuthPageEvent event);
-/**
+/*
  * 一键登录接口的回调监听
  *
  * @param event
@@ -22,7 +21,7 @@ typedef JVAuthPageEventListener = void Function(JVAuthPageEvent event);
  * */
 typedef JVLoginAuthCallBackListener = void Function(JVListenerEvent event);
 
-/**
+/*
  * 短信登录接口的回调监听
  *
  * @param event
@@ -34,7 +33,7 @@ typedef JVLoginAuthCallBackListener = void Function(JVListenerEvent event);
  * */
 typedef JVSMSListener = void Function(JVSMSEvent event);
 
-/**
+/*
  * SDK 初始接口回调监听
  *
  * @param event
@@ -46,14 +45,13 @@ typedef JVSMSListener = void Function(JVSMSEvent event);
 typedef JVSDKSetupCallBackListener = void Function(JVSDKSetupEvent event);
 
 class JVEventHandlers {
-  static final JVEventHandlers _instance = new JVEventHandlers._internal();
+  static final JVEventHandlers _instance = JVEventHandlers._internal();
 
   JVEventHandlers._internal();
 
   factory JVEventHandlers() => _instance;
 
-  Map<String, JVClickWidgetEventListener> clickEventsMap =
-      Map<String, JVClickWidgetEventListener>();
+  Map<String, JVClickWidgetEventListener> clickEventsMap = {};
   List<JVAuthPageEventListener> authPageEvents = [];
   List<JVLoginAuthCallBackListener> loginAuthCallBackEvents = [];
   JVSDKSetupCallBackListener? sdkSetupCallBackListener;
@@ -66,19 +64,20 @@ class JVEventHandlers {
 }
 
 class Jverify {
-  static const String flutter_log = "| JVER | Flutter | ";
+  static const String flutterLog = "| JVER | Flutter | ";
+  
 
   /// 错误码
-  static const String j_flutter_code_key = "code";
+  static const String jFlutterCodeKey = "code";
 
   /// 回调的提示信息
-  static const String j_flutter_msg_key = "message";
+  static const String jFlutterMsgKey = "message";
 
   /// 重复请求
-  static const int j_flutter_error_code_repeat = -1;
+  static const int jFlutterErrorCodeRepeat = -1;
 
   factory Jverify() => _instance;
-  final JVEventHandlers _eventHanders = new JVEventHandlers();
+  final JVEventHandlers _eventHandlers = JVEventHandlers();
 
   final MethodChannel _channel;
   final List<String> requestQueue = [];
@@ -86,39 +85,39 @@ class Jverify {
   @visibleForTesting
   Jverify.private(MethodChannel channel) : _channel = channel;
 
-  static final _instance = new Jverify.private(const MethodChannel("jverify"));
+  static final _instance = Jverify.private(const MethodChannel("jverify"));
 
   /// 自定义控件的点击事件
   addClikWidgetEventListener(
       String eventId, JVClickWidgetEventListener callback) {
-    _eventHanders.clickEventsMap[eventId] = callback;
+    _eventHandlers.clickEventsMap[eventId] = callback;
   }
 
   /// 授权页的点击事件， @since v2.4.0
   addAuthPageEventListener(JVAuthPageEventListener callback) {
-    _eventHanders.authPageEvents.add(callback);
+    _eventHandlers.authPageEvents.add(callback);
   }
 
   /// loginAuth 接口回调的监听 （旧，用于配合旧版loginAuthSyncApi使用）
   addLoginAuthCallBackListener(JVLoginAuthCallBackListener callback) {
-    _eventHanders.loginAuthCallBackEvents.add(callback);
+    _eventHandlers.loginAuthCallBackEvents.add(callback);
   }
 
   /// SDK 初始化回调监听
   addSDKSetupCallBackListener(JVSDKSetupCallBackListener? callback) {
-    _eventHanders.sdkSetupCallBackListener = callback;
+    _eventHandlers.sdkSetupCallBackListener = callback;
   }
 
   Future<void> _handlerMethod(MethodCall call) async {
-    print("handleMethod method = ${call.method}");
+    debugPrint("handleMethod method = ${call.method}");
     switch (call.method) {
       case 'onReceiveClickWidgetEvent':
         {
           String widgetId = call.arguments.cast<dynamic, dynamic>()['widgetId'];
-          bool isContains = _eventHanders.clickEventsMap.containsKey(widgetId);
+          bool isContains = _eventHandlers.clickEventsMap.containsKey(widgetId);
           if (isContains) {
             JVClickWidgetEventListener cb =
-                _eventHanders.clickEventsMap[widgetId]!;
+            _eventHandlers.clickEventsMap[widgetId]!;
             cb(widgetId);
           }
         }
@@ -129,62 +128,62 @@ class Jverify {
           JVAuthPageEvent ev = JVAuthPageEvent.fromJson(json);
           int index = json["loginAuthIndex"];
 
-          for (JVAuthPageEventListener cb in _eventHanders.authPageEvents) {
+          for (JVAuthPageEventListener cb in _eventHandlers.authPageEvents) {
             cb(ev);
           }
 
-          if (_eventHanders.authPageEventsMap.containsKey(index)) {
-            _eventHanders.authPageEventsMap[index]!(ev);
+          if (_eventHandlers.authPageEventsMap.containsKey(index)) {
+            _eventHandlers.authPageEventsMap[index]!(ev);
           }
         }
         break;
       case 'onReceiveLoginAuthCallBackEvent':
         {
           Map json = call.arguments.cast<dynamic, dynamic>();
-          print(json.toString());
+           debugPrint(json.toString());
 
           JVListenerEvent event = JVListenerEvent.fromJson(json);
           if (json["loginAuthIndex"] != null) {
             int index = json["loginAuthIndex"];
-            if (_eventHanders.loginAuthCallBackEventsMap.containsKey(index)) {
-              _eventHanders.loginAuthCallBackEventsMap[index]!(event);
-              _eventHanders.loginAuthCallBackEventsMap.remove(index);
+            if (_eventHandlers.loginAuthCallBackEventsMap.containsKey(index)) {
+              _eventHandlers.loginAuthCallBackEventsMap[index]!(event);
+              _eventHandlers.loginAuthCallBackEventsMap.remove(index);
             }
           }
 
           //老版本callback
           for (JVLoginAuthCallBackListener cb
-              in _eventHanders.loginAuthCallBackEvents) {
+          in _eventHandlers.loginAuthCallBackEvents) {
             cb(event);
-            _eventHanders.loginAuthCallBackEvents.remove(cb);
+            _eventHandlers.loginAuthCallBackEvents.remove(cb);
           }
         }
         break;
       case 'onReceiveSMSAuthCallBackEvent':
         {
           Map json = call.arguments.cast<dynamic, dynamic>();
-          print(json.toString());
+           debugPrint(json.toString());
           JVSMSEvent event = JVSMSEvent.fromJson(json);
           if (json["smsAuthIndex"] != null) {
             int index = json["smsAuthIndex"];
-            if (_eventHanders.smsCallBackEventsMap.containsKey(index)) {
-              _eventHanders.smsCallBackEventsMap[index]!(event);
-              _eventHanders.smsCallBackEventsMap.remove(index);
+            if (_eventHandlers.smsCallBackEventsMap.containsKey(index)) {
+              _eventHandlers.smsCallBackEventsMap[index]!(event);
+              _eventHandlers.smsCallBackEventsMap.remove(index);
             }
           }
         }
         break;
       case 'onReceiveSDKSetupCallBackEvent':
         {
-          if (_eventHanders.sdkSetupCallBackListener != null) {
+          if (_eventHandlers.sdkSetupCallBackListener != null) {
             Map json = call.arguments.cast<dynamic, dynamic>();
             JVSDKSetupEvent event = JVSDKSetupEvent.fromJson(json);
-            _eventHanders.sdkSetupCallBackListener!(event);
+            _eventHandlers.sdkSetupCallBackListener!(event);
           }
         }
         break;
       default:
-        throw new UnsupportedError("Unrecognized Event");
+        throw UnsupportedError("Unrecognized Event");
     }
     return;
   }
@@ -193,10 +192,10 @@ class Jverify {
     bool isContain = requestQueue.any((element) => (element == method));
     if (isContain) {
       Map map = {
-        j_flutter_code_key: j_flutter_error_code_repeat,
-        j_flutter_msg_key: method + " is requesting, please try again later."
+        jFlutterCodeKey: jFlutterErrorCodeRepeat,
+        jFlutterMsgKey: "$method 正在请求，请稍后重试。"
       };
-      print(flutter_log + map.toString());
+       debugPrint(flutterLog + map.toString());
       return map;
     } else {
       requestQueue.add(method);
@@ -207,11 +206,11 @@ class Jverify {
   /// 初始化, timeout单位毫秒，合法范围是(0,30000]，推荐设置为5000-10000,默认值为10000
   void setup(
       {@required String? appKey,
-      String? channel,
-      bool? useIDFA,
-      int timeout = 10000,
-      bool setControlWifiSwitch = true}) {
-    print("$flutter_log" + "setup");
+        String? channel,
+        bool? useIDFA,
+        int timeout = 10000,
+        bool setControlWifiSwitch = true}) {
+     debugPrint("$flutterLog 初始化");
 
     _channel.setMethodCallHandler(_handlerMethod);
 
@@ -226,19 +225,19 @@ class Jverify {
 
   /// 设置 debug 模式
   void setDebugMode(bool debug) {
-    print("$flutter_log" + "setDebugMode");
+     debugPrint("$flutterLog 设置 debug 模式");
     _channel.invokeMethod("setDebugMode", {"debug": debug});
   }
 
   /// 合规采集开关
   void setCollectionAuth(bool auth) {
-    print("$flutter_log" + "setCollectionAuth");
+     debugPrint("$flutterLog 设置集合身份验证");
     _channel.invokeMethod("setCollectionAuth", {"auth": auth});
   }
 
   ///设置前后两次获取验证码的时间间隔，默认 30000ms，有效范围(0,300000)
   void setGetCodeInternal(int intervalTime) {
-    print("$flutter_log" + "setGetCodeInternal");
+     debugPrint("$flutterLog 设置前后两次获取验证码的时间间隔");
     _channel.invokeMethod("setGetCodeInternal", {"timeInterval": intervalTime});
   }
 
@@ -246,13 +245,13 @@ class Jverify {
    * SDK 获取短信验证码
    *
    * return Map
-   *        key = "code", vlaue = 状态码，3000代表获取成功
+   *        key = "code", value = 状态码，3000代表获取成功
    *        key = "message", 提示信息
    *        key = "result",uuid
    * */
   Future<Map<dynamic, dynamic>> getSMSCode(
       {@required String? phoneNum, String? signId, String? tempId}) async {
-    print("$flutter_log" + "getSMSCode");
+     debugPrint("$flutterLog 获取短信验证码");
 
     var args = <String, String>{};
     if (phoneNum != null) {
@@ -275,10 +274,10 @@ class Jverify {
    *
    * return Map
    *          key = "result"
-   *          vlue = bool,是否成功
+   *          value = bool,是否成功
    * */
   Future<Map<dynamic, dynamic>> isInitSuccess() async {
-    print("$flutter_log" + "isInitSuccess");
+     debugPrint("$flutterLog 初始化成功");
     return await _channel.invokeMethod("isInitSuccess");
   }
 
@@ -287,10 +286,10 @@ class Jverify {
    *
    * return Map
    *          key = "result"
-   *          vlue = bool,是否支持
+   *          value = bool,是否支持
    * */
   Future<Map<dynamic, dynamic>> checkVerifyEnable() async {
-    print("$flutter_log" + "checkVerifyEnable");
+     debugPrint("$flutterLog 网络环境支持");
     return await _channel.invokeMethod("checkVerifyEnable");
   }
 
@@ -298,17 +297,17 @@ class Jverify {
    * SDK 获取号码认证token
    *
    * return Map
-   *        key = "code", vlaue = 状态码，2000代表获取成功
+   *        key = "code", value = 状态码，2000代表获取成功
    *        key = "message", value = 成功即为 token，失败为提示
    * */
   Future<Map<dynamic, dynamic>> getToken({String? timeOut}) async {
-    print("$flutter_log" + "getToken");
+     debugPrint("$flutterLog 获取号码认证token");
 
     String method = "getToken";
     var repeatError = isRepeatRequest(method: method);
     if (repeatError == null) {
       var para = {"timeOut": timeOut};
-      para.remove((key, value) => value == null);
+      para.removeWhere((key, value) => value == null);
       var result = await _channel.invokeMethod(method, para);
       requestQueue.remove(method);
       return result;
@@ -317,33 +316,21 @@ class Jverify {
     }
   }
 
-  /*
-  * SDK 发起号码认证
-  *
-  * 2.4.3 版本开始，此接口已移除
-  * */
-  Future<Map<dynamic, dynamic>> verifyNumber(String phone,
-      {String? token}) async {
-    print("$flutter_log" + "verifyNumber");
-
-    return {"error": "This interface is deprecated"};
-  }
 
   /*
    * SDK 一键登录预取号,timeOut 有效取值范围[3000,10000]
    *
    * return Map
-   *        key = "code", vlaue = 状态码，7000代表获取成功
+   *        key = "code", value = 状态码，7000代表获取成功
    *        key = "message", value = 结果信息描述
    * */
   Future<Map<dynamic, dynamic>> preLogin({int timeOut = 10000}) async {
-    var para = new Map();
-    if (timeOut != null) {
+    var para = {};
       if (timeOut >= 3000 && timeOut <= 10000) {
         para["timeOut"] = timeOut;
       }
-    }
-    print("$flutter_log" + "preLogin" + "$para");
+
+     debugPrint("$flutterLog 预取号 $para");
 
     String method = "preLogin";
     var repeatError = isRepeatRequest(method: method);
@@ -364,7 +351,7 @@ class Jverify {
   * @since v2.4.3
   * */
   void clearPreLoginCache() {
-    print("$flutter_log" + "clearPreLoginCache");
+     debugPrint("$flutterLog 清除预取号缓存");
     _channel.invokeMethod("clearPreLoginCache");
   }
 
@@ -383,7 +370,7 @@ class Jverify {
   * */
   Future<Map<dynamic, dynamic>> loginAuth(bool autoDismiss,
       {int timeout = 10000}) async {
-    print("$flutter_log" + "loginAuth");
+     debugPrint("$flutterLog 一键登录（异步接口）");
 
     String method = "loginAuth";
     var repeatError = isRepeatRequest(method: method);
@@ -409,8 +396,8 @@ class Jverify {
   *
   * */
   void loginAuthSyncApi(
-      {@required bool autoDismiss = false, int timeout = 10000}) {
-    print("$flutter_log" + "loginAuthSyncApi");
+      {bool autoDismiss = false, int timeout = 10000}) {
+     debugPrint("$flutterLog 一键登录（同步接口）（旧）");
 
     String method = "loginAuthSyncApi";
     var repeatError = isRepeatRequest(method: method);
@@ -419,7 +406,7 @@ class Jverify {
       _channel.invokeMethod(method, map);
       requestQueue.remove(method);
     } else {
-      print("$flutter_log" + repeatError.toString());
+       debugPrint("$flutterLog  ${repeatError.toString()}");
     }
   }
 
@@ -437,34 +424,34 @@ class Jverify {
   * */
   void loginAuthSyncApi2(
       {required bool autoDismiss,
-      int timeout = 10000,
-      bool enableSms = false,
-      JVLoginAuthCallBackListener? loginAuthcallback,
-      JVAuthPageEventListener? pageEventCallback}) {
-    print("$flutter_log" + "loginAuthSyncApi");
+        int timeout = 10000,
+        bool enableSms = false,
+        JVLoginAuthCallBackListener? loginAuthCallback,
+        JVAuthPageEventListener? pageEventCallback}) {
+     debugPrint("$flutterLog 一键登录（同步接口）(新)");
 
     String method = "loginAuthSyncApi";
     var repeatError = isRepeatRequest(method: method);
     if (repeatError == null) {
-      _eventHanders.loginAuthIndex++;
+      _eventHandlers.loginAuthIndex++;
       var map = {
         "autoDismiss": autoDismiss,
         "timeout": timeout,
         "enableSms": enableSms,
-        "loginAuthIndex": _eventHanders.loginAuthIndex
+        "loginAuthIndex": _eventHandlers.loginAuthIndex
       };
-      if (loginAuthcallback != null) {
-        _eventHanders.loginAuthCallBackEventsMap[_eventHanders.loginAuthIndex] =
-            loginAuthcallback;
+      if (loginAuthCallback != null) {
+        _eventHandlers.loginAuthCallBackEventsMap[_eventHandlers.loginAuthIndex] =
+            loginAuthCallback;
       }
       if (pageEventCallback != null) {
-        _eventHanders.authPageEventsMap[_eventHanders.loginAuthIndex] =
+        _eventHandlers.authPageEventsMap[_eventHandlers.loginAuthIndex] =
             pageEventCallback;
       }
       _channel.invokeMethod(method, map);
       requestQueue.remove(method);
     } else {
-      print("$flutter_log" + repeatError.toString());
+       debugPrint("$flutterLog ${repeatError.toString()}");
     }
   }
 
@@ -480,27 +467,27 @@ class Jverify {
   * */
   void smsAuth(
       {required bool autoDismiss,
-      int timeout = 5000,
-      JVSMSListener? smsCallback}) {
-    print("$flutter_log" + "smsAuth");
+        int timeout = 5000,
+        JVSMSListener? smsCallback}) {
+     debugPrint("$flutterLog 短信登录");
 
     String method = "smsAuth";
     var repeatError = isRepeatRequest(method: method);
     if (repeatError == null) {
-      _eventHanders.smsAuthIndex++;
+      _eventHandlers.smsAuthIndex++;
       var map = {
         "autoDismiss": autoDismiss,
         "timeout": timeout,
-        "smsAuthIndex": _eventHanders.smsAuthIndex
+        "smsAuthIndex": _eventHandlers.smsAuthIndex
       };
       if (smsCallback != null) {
-        _eventHanders.smsCallBackEventsMap[_eventHanders.smsAuthIndex] =
+        _eventHandlers.smsCallBackEventsMap[_eventHandlers.smsAuthIndex] =
             smsCallback;
       }
       _channel.invokeMethod(method, map);
       requestQueue.remove(method);
     } else {
-      print("$flutter_log" + repeatError.toString());
+       debugPrint("$flutterLog ${repeatError.toString()}");
     }
   }
 
@@ -508,7 +495,7 @@ class Jverify {
   * 关闭授权页面
   * */
   void dismissLoginAuthView() {
-    print(flutter_log + "dismissLoginAuthView");
+     debugPrint("$flutterLog 关闭授权页面");
     _channel.invokeMethod("dismissLoginAuthView");
   }
 
@@ -523,13 +510,13 @@ class Jverify {
   void setCustomAuthorizationView(bool isAutorotate, JVUIConfig portraitConfig,
       {JVUIConfig? landscapeConfig, List<JVCustomWidget>? widgets}) {
     if (isAutorotate == true) {
-      if (portraitConfig == null || landscapeConfig == null) {
-        print("missing Android landscape ui config");
+      if (landscapeConfig == null) {
+         debugPrint("missing Android landscape ui config");
         return;
       }
     }
 
-    var para = Map();
+    var para ={};
     para["isAutorotate"] = isAutorotate;
 
     var para1 = portraitConfig.toJsonMap();
@@ -559,11 +546,11 @@ class Jverify {
   /// （不建议使用，建议使用 setAuthorizationView 接口）自定义授权页面，界面原始控件、新增自定义控件
   void setCustomAuthViewAllWidgets(JVUIConfig uiConfig,
       {List<JVCustomWidget>? widgets}) {
-    var para = Map();
+    var para ={};
 
     var para1 = uiConfig.toJsonMap();
     para1.removeWhere((key, value) => value == null);
-    para["uiconfig"] = para1;
+    para["uiConfig"] = para1;
 
     if (widgets != null) {
       var widgetList = [];
@@ -667,7 +654,7 @@ class JVUIConfig {
 
   int? privacyOffsetY; // 隐私条款相对于授权页面底部下边缘 y 偏移
   int? privacyOffsetX; // 隐私条款相对于屏幕左边 x 轴偏移
-  JVIOSLayoutItem privacyVerticalLayoutItem = JVIOSLayoutItem.ItemSuper;
+  JVIOSLayoutItem privacyVerticalLayoutItem = JVIOSLayoutItem.itemSuper;
   String? clauseName; // 协议1 名字
   String? clauseUrl; // 协议1 URL
   String? clauseNameTwo; // 协议2 名字
@@ -711,7 +698,7 @@ class JVUIConfig {
   bool virtualButtonTransparent = false; //授权页虚拟按键背景是否透明 only android
 
   JVIOSBarStyle authStatusBarStyle =
-      JVIOSBarStyle.StatusBarStyleDefault; //授权页状态栏样式设置 only iOS
+      JVIOSBarStyle.statusBarStyleDefault; //授权页状态栏样式设置 only iOS
 
   ///是否需要动画
   bool needStartAnim = false; //设置拉起授权页时是否需要显示默认动画
@@ -726,7 +713,7 @@ class JVUIConfig {
   JVPrivacyCheckDialogConfig? privacyCheckDialogConfig;
 
   JVIOSUIModalTransitionStyle modelTransitionStyle = //弹出方式 only ios
-      JVIOSUIModalTransitionStyle.CoverVertical;
+  JVIOSUIModalTransitionStyle.coverVertical;
 
   /// 协议二次弹窗-iOS
   double agreementAlertViewCornerRadius = 5.0; // 协议二次弹窗的圆角
@@ -742,12 +729,12 @@ class JVUIConfig {
   int? agreementAlertViewLogBtnTextFontSize; //协议二次弹窗登录按钮文本字体大小
   String? agreementAlertViewLoginBtnNormalImagePath; // 协议二次弹窗登录按钮背景图片 - 激活状态的图片
   String?
-      agreementAlertViewLoginBtnPressedImagePath; // 协议二次弹窗登录按钮背景图片 - 高亮状态的图片
+  agreementAlertViewLoginBtnPressedImagePath; // 协议二次弹窗登录按钮背景图片 - 高亮状态的图片
   String? agreementAlertViewLoginBtnUnableImagePath; //协议二次弹窗登录按钮背景图片 - 失效状态的图片
   int? agreementAlertViewLogBtnTextColor; //协议二次弹窗登录按钮文本颜色
   List<JVCustomWidget>? agreementAlertViewWidgets; //协议二次弹窗自定义视图
   Map<String, List<int>>?
-      agreementAlertViewUIFrames; // 协议二次弹窗各控件的frame设置 { "superViewFrame": [left, top, width, height],"alertViewFrame": [left, top, width, height],"titleFrame": [left, top, width, height],"contentFrame": [left, top, width, height],"buttonFrame": [left, top, width, height]};
+  agreementAlertViewUIFrames; // 协议二次弹窗各控件的frame设置 { "superViewFrame": [left, top, width, height],"alertViewFrame": [left, top, width, height],"titleFrame": [left, top, width, height],"contentFrame": [left, top, width, height],"buttonFrame": [left, top, width, height]};
 
   bool setIsPrivacyViewDarkMode = true; //协议页面是否支持暗黑模式
 
@@ -852,7 +839,7 @@ class JVUIConfig {
       "privacyNavTitleTitle2": privacyNavTitleTitle2 ??= null,
       "privacyNavReturnBtnImage": privacyNavReturnBtnImage ??= null,
       "popViewConfig":
-          popViewConfig != null ? popViewConfig?.toJsonMap() : null,
+      popViewConfig?.toJsonMap(),
       "privacyStatusBarColorWithNav": privacyStatusBarColorWithNav,
       "privacyStatusBarDarkMode": privacyStatusBarDarkMode,
       "privacyStatusBarTransparent": privacyStatusBarTransparent,
@@ -876,33 +863,31 @@ class JVUIConfig {
       "agreementAlertViewCornerRadius": agreementAlertViewCornerRadius,
       "agreementAlertViewBackgroundColor": agreementAlertViewBackgroundColor,
       "agreementAlertViewBackgroundImgPath":
-          agreementAlertViewBackgroundImgPath,
+      agreementAlertViewBackgroundImgPath,
       "agreementAlertViewTitleText": agreementAlertViewTitleText ??= null,
       "agreementAlertViewTitleTexSize": agreementAlertViewTitleTexSize,
       "agreementAlertViewTitleTextColor": agreementAlertViewTitleTextColor ??=
           Colors.black.value,
       "agreementAlertViewContentTextAlignment":
-          getStringFromEnum(agreementAlertViewContentTextAlignment),
+      getStringFromEnum(agreementAlertViewContentTextAlignment),
       "agreementAlertViewContentTextFontSize":
-          agreementAlertViewContentTextFontSize,
+      agreementAlertViewContentTextFontSize,
       "agreementAlertViewLogBtnText": agreementAlertViewLogBtnText,
       "agreementAlertViewLogBtnTextFontSize":
-          agreementAlertViewLogBtnTextFontSize,
+      agreementAlertViewLogBtnTextFontSize,
       "agreementAlertViewLoginBtnNormalImagePath":
-          agreementAlertViewLoginBtnNormalImagePath ??= null,
+      agreementAlertViewLoginBtnNormalImagePath ??= null,
       "agreementAlertViewLoginBtnPressedImagePath":
-          agreementAlertViewLoginBtnPressedImagePath ??= null,
+      agreementAlertViewLoginBtnPressedImagePath ??= null,
       "agreementAlertViewLoginBtnUnableImagePath":
-          agreementAlertViewLoginBtnUnableImagePath ??= null,
+      agreementAlertViewLoginBtnUnableImagePath ??= null,
       "agreementAlertViewLogBtnTextColor": agreementAlertViewLogBtnTextColor ??=
           Colors.black.value,
       "agreementAlertViewWidgets": agreementAlertViewWidgetsList,
       "agreementAlertViewUIFrames": agreementAlertViewUIFrames ??= null,
-      "privacyCheckDialogConfig": privacyCheckDialogConfig != null
-          ? privacyCheckDialogConfig?.toJsonMap()
-          : null,
+      "privacyCheckDialogConfig": privacyCheckDialogConfig?.toJsonMap(),
       "setIsPrivacyViewDarkMode": setIsPrivacyViewDarkMode,
-      "smsUIConfig": smsUIConfig != null ? smsUIConfig?.toJsonMap() : null
+      "smsUIConfig": smsUIConfig?.toJsonMap()
     }..removeWhere((key, value) => value == null);
   }
 }
@@ -919,13 +904,13 @@ class JVPopViewConfig {
   int offsetCenterY = 0; // 窗口相对屏幕中心的y轴偏移量
   bool isBottom = false; // only Android，窗口是否居屏幕底部。设置后 offsetCenterY 将失效，
   double popViewCornerRadius =
-      5.0; // only ios，弹窗圆角大小，Android 从 AndroidManifest 配置中读取
+  5.0; // only ios，弹窗圆角大小，Android 从 AndroidManifest 配置中读取
   double backgroundAlpha =
-      0.3; // only ios，背景的透明度，Android 从 AndroidManifest 配置中读取
+  0.3; // only ios，背景的透明度，Android 从 AndroidManifest 配置中读取
 
   bool? isPopViewTheme; // 是否支持弹窗模式
   JVPopViewConfig() {
-    this.isPopViewTheme = true;
+    isPopViewTheme = true;
   }
 
   Map toJsonMap() {
@@ -973,7 +958,7 @@ class JVPrivacyCheckDialogConfig {
   String? privacyBackgroundPath; //隐私协议二次弹窗背景图片
 
   JVPrivacyCheckDialogConfig() {
-    this.enablePrivacyCheckDialog = true;
+    enablePrivacyCheckDialog = true;
   }
 
   Map toJsonMap() {
@@ -1066,7 +1051,7 @@ class JVSMSUIConfig {
   int? smsVerifyCodeEditTextViewWidth; //设置验证码输入框宽度
   int? smsVerifyCodeEditTextViewHeight; //设置验证码输入框高度
   JVIOSTextBorderStyle?
-      smsVerifyCodeEditTextViewBorderStyle; //设置验证码输入框样式 only iOS
+  smsVerifyCodeEditTextViewBorderStyle; //设置验证码输入框样式 only iOS
   int? smsGetVerifyCodeTextViewOffsetX; //设置获取验证码按钮相对于屏幕左边 x 轴偏移
   int? smsGetVerifyCodeTextViewOffsetY; //设置获取验证码按钮相对于标题栏下边缘 y 偏移
   int? smsGetVerifyCodeTextViewTextSize; //设置获取验证码按钮字体大小
@@ -1077,7 +1062,7 @@ class JVSMSUIConfig {
   int? smsGetVerifyCodeBtnCornerRadius; // 设置获取验证码按钮圆角度数 only iOS
   String? smsGetVerifyCodeBtnBackgroundPath; //设置获取验证码按钮图片
   List<String>?
-      smsGetVerifyCodeBtnBackgroundPaths; //设置获取验证码按钮图片 [激活状态的图片,失效状态的图片,高亮状态的图片] only iOS
+  smsGetVerifyCodeBtnBackgroundPaths; //设置获取验证码按钮图片 [激活状态的图片,失效状态的图片,高亮状态的图片] only iOS
   String? smsGetVerifyCodeBtnText; //设置获取验证码按钮文字  only iOS
   //enableSmsGetVerifyCodeDialog;
   //smsGetVerifyCodeDialog
@@ -1092,7 +1077,7 @@ class JVSMSUIConfig {
   bool? isSmsLogBtnTextBold; //	设置登录按钮字体是否加粗
   String? smsLogBtnBackgroundPath; //设置授权登录按钮图片
   String?
-      smsLogBtnBackgroundPaths; //设置授权登录按钮图片 @[激活状态的图片,失效状态的图片,高亮状态的图片] only iOS
+  smsLogBtnBackgroundPaths; //设置授权登录按钮图片 @[激活状态的图片,失效状态的图片,高亮状态的图片] only iOS
   int? smsFirstSeperLineOffsetX; //第一分割线相对于屏幕左边 x 轴偏移 only android
   int? smsFirstSeperLineOffsetY; //第一分割线相对于标题栏下边缘 y 偏移 only android
   int? smsFirstSeperLineOffsetR; //第一分割线相对于屏幕右边偏移 only android
@@ -1104,7 +1089,7 @@ class JVSMSUIConfig {
   bool? isSmsPrivacyTextGravityCenter; //设置隐私条款文字是否居中对齐（默认左对齐）
   List<int>? smsPrivacyColor; // 设置隐私条款名称颜色 [基础文字颜色，协议文字颜色] only iOS
   int?
-      smsPrivacyTextVerAlignment; // 设置隐私条款垂直对齐方式 0:top 1:middle 2:bottom only iOS
+  smsPrivacyTextVerAlignment; // 设置隐私条款垂直对齐方式 0:top 1:middle 2:bottom only iOS
   int? smsPrivacyOffsetX; //协议相对于屏幕左边 x 轴偏移
   int? smsPrivacyOffsetY; //协议相对于底部 y 偏移
   int? smsPrivacyTopOffsetY; //协议相对于标题栏下边缘 y 偏移
@@ -1166,48 +1151,48 @@ class JVSMSUIConfig {
       "smsPhoneInputViewTextColor": smsPhoneInputViewTextColor ??= null,
       "smsPhoneInputViewTextSize": smsPhoneInputViewTextSize ??= null,
       "smsPhoneInputViewPlaceholderText": smsPhoneInputViewPlaceholderText ??=
-          null,
+      null,
       "smsPhoneInputViewBorderStyle":
-          getStringFromEnum(smsPhoneInputViewBorderStyle),
+      getStringFromEnum(smsPhoneInputViewBorderStyle),
       "smsVerifyCodeTextViewOffsetX": smsVerifyCodeTextViewOffsetX ??= null,
       "smsVerifyCodeTextViewOffsetY": smsVerifyCodeTextViewOffsetY ??= null,
       "smsVerifyCodeTextViewTextSize": smsVerifyCodeTextViewTextSize ??= null,
       "smsVerifyCodeTextViewTextColor": smsVerifyCodeTextViewTextColor ??= null,
       "smsVerifyCodeEditTextViewTextSize": smsVerifyCodeEditTextViewTextSize ??=
-          null,
+      null,
       "smsVerifyCodeEditTextViewTextColor":
-          smsVerifyCodeEditTextViewTextColor ??= null,
+      smsVerifyCodeEditTextViewTextColor ??= null,
       "smsVerifyCodeEditTextViewPlaceholderText":
-          smsVerifyCodeEditTextViewPlaceholderText ??= null,
+      smsVerifyCodeEditTextViewPlaceholderText ??= null,
       "smsVerifyCodeEditTextViewOffsetX": smsVerifyCodeEditTextViewOffsetX ??=
-          null,
+      null,
       "smsVerifyCodeEditTextViewOffsetY": smsVerifyCodeEditTextViewOffsetY ??=
-          null,
+      null,
       "smsVerifyCodeEditTextViewOffsetR": smsVerifyCodeEditTextViewOffsetR ??=
-          null,
+      null,
       "smsVerifyCodeEditTextViewWidth": smsVerifyCodeEditTextViewWidth ??= null,
       "smsVerifyCodeEditTextViewHeight": smsVerifyCodeEditTextViewHeight ??=
-          null,
+      null,
       "smsVerifyCodeEditTextViewBorderStyle":
-          getStringFromEnum(smsVerifyCodeEditTextViewBorderStyle),
+      getStringFromEnum(smsVerifyCodeEditTextViewBorderStyle),
       "smsGetVerifyCodeTextViewOffsetX": smsGetVerifyCodeTextViewOffsetX ??=
-          null,
+      null,
       "smsGetVerifyCodeTextViewOffsetY": smsGetVerifyCodeTextViewOffsetY ??=
-          null,
+      null,
       "smsGetVerifyCodeTextViewTextSize": smsGetVerifyCodeTextViewTextSize ??=
-          null,
+      null,
       "smsGetVerifyCodeTextViewTextColor": smsGetVerifyCodeTextViewTextColor ??=
-          null,
+      null,
       "smsGetVerifyCodeTextViewOffsetR": smsGetVerifyCodeTextViewOffsetR ??=
-          null,
+      null,
       "smsGetVerifyCodeBtnWidth": smsGetVerifyCodeBtnWidth ??= null,
       "smsGetVerifyCodeBtnHeight": smsGetVerifyCodeBtnHeight ??= null,
       "smsGetVerifyCodeBtnCornerRadius": smsGetVerifyCodeBtnCornerRadius ??=
-          null,
+      null,
       "smsGetVerifyCodeBtnBackgroundPath": smsGetVerifyCodeBtnBackgroundPath ??=
-          null,
+      null,
       "smsGetVerifyCodeBtnBackgroundPaths":
-          smsGetVerifyCodeBtnBackgroundPaths ??= null,
+      smsGetVerifyCodeBtnBackgroundPaths ??= null,
       "smsGetVerifyCodeBtnText": smsGetVerifyCodeBtnText ??= null,
       "smsLogBtnOffsetX": smsLogBtnOffsetX ??= null,
       "smsLogBtnOffsetY": smsLogBtnOffsetY ??= null,
@@ -1246,11 +1231,11 @@ class JVSMSUIConfig {
       "smsPrivacyCheckboxState": smsPrivacyCheckboxState ??= null,
       "smsPrivacyCheckboxMargin": smsPrivacyCheckboxMargin ??= null,
       "smsPrivacyCheckboxUncheckedImgPath":
-          smsPrivacyCheckboxUncheckedImgPath ??= null,
+      smsPrivacyCheckboxUncheckedImgPath ??= null,
       "smsPrivacyCheckboxCheckedImgPath": smsPrivacyCheckboxCheckedImgPath ??=
-          null,
+      null,
       "smsPrivacyBeanList":
-          smsPrivacyBeanList != null ? json.encode(smsPrivacyBeanList) : null,
+      smsPrivacyBeanList != null ? json.encode(smsPrivacyBeanList) : null,
       "smsPrivacyClauseStart": smsPrivacyClauseStart ??= null,
       "smsPrivacyClauseEnd": smsPrivacyClauseEnd ??= null,
       "smsPrivacyUncheckedMsg": smsPrivacyUncheckedMsg ??= null,
@@ -1267,12 +1252,12 @@ class JVCustomWidget {
   JVCustomWidgetType? type;
 
   JVCustomWidget(this.widgetId, this.type) {
-    this.widgetId = widgetId;
-    this.type = type;
+    widgetId = widgetId;
+    type = type;
     if (type == JVCustomWidgetType.button) {
-      this.isClickEnable = true;
+      isClickEnable = true;
     } else {
-      this.isClickEnable = false;
+      isClickEnable = false;
     }
   }
 
@@ -1340,7 +1325,7 @@ enum JVTextAlignmentType { left, right, center }
 /// SMS监听返回类
 class JVSMSEvent {
   int?
-      code; //返回码，具体事件返回码请查看（https://docs.jiguang.cn/jverification/client/android_api/）
+  code; //返回码，具体事件返回码请查看（https://docs.jiguang.cn/jverification/client/android_api/）
   String? message; //事件描述、事件返回值等
   String? phone; //电话号
 
@@ -1357,7 +1342,7 @@ class JVSMSEvent {
 /// 监听返回类
 class JVListenerEvent {
   int?
-      code; //返回码，具体事件返回码请查看（https://docs.jiguang.cn/jverification/client/android_api/）
+  code; //返回码，具体事件返回码请查看（https://docs.jiguang.cn/jverification/client/android_api/）
   String? message; //事件描述、事件返回值等
   String? operator; //成功时为对应运营商，CM代表中国移动，CU代表中国联通，CT代表中国电信。失败时可能为null
 
@@ -1374,7 +1359,7 @@ class JVListenerEvent {
 /// 授权页事件
 class JVAuthPageEvent extends JVListenerEvent {
   @override
-  JVAuthPageEvent.fromJson(Map<dynamic, dynamic> json) : super.fromJson(json);
+  JVAuthPageEvent.fromJson(Map<dynamic, dynamic> json) : super.fromJson(json=json);
 
   @override
   Map toMap() {
@@ -1388,7 +1373,7 @@ class JVAuthPageEvent extends JVListenerEvent {
 /// SDK 初始化回调事件
 class JVSDKSetupEvent extends JVAuthPageEvent {
   @override
-  JVSDKSetupEvent.fromJson(Map<dynamic, dynamic> json) : super.fromJson(json);
+  JVSDKSetupEvent.fromJson(Map<dynamic, dynamic> json) : super.fromJson(json=json);
 }
 
 /*
@@ -1404,14 +1389,14 @@ class JVSDKSetupEvent extends JVAuthPageEvent {
 * ItemSuper   参照父视图
 * */
 enum JVIOSLayoutItem {
-  ItemNone,
-  ItemLogo,
-  ItemNumber,
-  ItemSlogan,
-  ItemLogin,
-  ItemCheck,
-  ItemPrivacy,
-  ItemSuper
+  itemNone,
+  itemLogo,
+  itemNumber,
+  itemSlogan,
+  itemLogin,
+  itemCheck,
+  itemPrivacy,
+  itemSuper
 }
 
 /*
@@ -1422,23 +1407,23 @@ enum JVIOSLayoutItem {
 *
 * */
 enum JVIOSUIModalTransitionStyle {
-  CoverVertical,
-  FlipHorizontal,
-  CrossDissolve,
-  PartialCurl
+  coverVertical,
+  flipHorizontal,
+  crossDissolve,
+  partialCurl
 }
 
 /*
 *
 * iOS状态栏设置，需要设置info.plist文件中
-* View controller-based status barappearance值为YES
+* View controller-based status bar appearance值为YES
 * 授权页和隐私页状态栏才会生效
 *
 * */
 enum JVIOSBarStyle {
-  StatusBarStyleDefault, // Automatically chooses light or dark content based on the user interface style
-  StatusBarStyleLightContent, // Light content, for use on dark backgrounds iOS 7 以上
-  StatusBarStyleDarkContent // Dark content, for use on light backgrounds  iOS 13 以上
+  statusBarStyleDefault, // Automatically chooses light or dark content based on the user interface style
+  statusBarStyleLightContent, // Light content, for use on dark backgrounds iOS 7 以上
+  statusBarStyleDarkContent // Dark content, for use on light backgrounds  iOS 13 以上
 }
 
 /*
@@ -1447,13 +1432,13 @@ enum JVIOSBarStyle {
 *
 * */
 enum JVIOSTextBorderStyle {
-  BorderStyleNone,
-  BorderStyleLine,
-  BorderStyleBezel,
-  BorderStyleRoundedRect
+  borderStyleNone,
+  borderStyleLine,
+  borderStyleBezel,
+  borderStyleRoundedRect
 }
 
-String getStringFromEnum<T>(T) {
+String getStringFromEnum(T) {
   if (T == null) {
     return "";
   }
@@ -1482,12 +1467,12 @@ class JVPrivacy {
   }
 
   Map toJson() {
-    Map map = new Map();
-    map["name"] = this.name;
-    map["url"] = this.url;
-    map["beforeName"] = this.beforeName;
-    map["afterName"] = this.afterName;
-    map["separator"] = this.separator;
+    Map map ={};
+    map["name"] = name;
+    map["url"] = url;
+    map["beforeName"] = beforeName;
+    map["afterName"] = afterName;
+    map["separator"] = separator;
     return map..removeWhere((key, value) => value == null);
   }
 }

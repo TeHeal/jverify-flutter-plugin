@@ -1,6 +1,6 @@
-# example
-
-A new Flutter project.
+# jverify_example
+![img.png](img.png)
+Demonstrates how to use the jverify plugin.
 
 ## Getting Started
 
